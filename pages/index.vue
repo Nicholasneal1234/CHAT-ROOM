@@ -3,6 +3,8 @@
     <div class="page__content position-fixed-center">
       <ChatRoom
         :chat-record-arr="chatRecordArr"
+        :typing-users-arr="typingUsersArr"
+        @isTyping="sendTypingState"
         @sendMessage="sendMessage"
       />
     </div>
@@ -16,6 +18,8 @@ interface pageData {
   userId: number,
   ws: WebSocket | null,
   chatRecordArr: Array<Object>,
+  isTyping: Boolean,
+  typingUsersArr: Array<Object>,
 }
 
 export default Vue.extend({
@@ -25,6 +29,8 @@ export default Vue.extend({
     userId: 0,
     ws: null,
     chatRecordArr: [],
+    isTyping: false,
+    typingUsersArr: [],
   }),
   mounted() {
     this.initWs();
@@ -46,6 +52,7 @@ export default Vue.extend({
             addUser: () => this.addUser ,
             removeUser: () => this.removeUser,
             getMessage: () => this.getMessage,
+            updateTypingUsersState: () => this.updateTypingUsersState,
           };
   
           const toggleEventOption = toggleEventOptions[serverData.toggleEvent];
@@ -74,6 +81,7 @@ export default Vue.extend({
           toggleEvent: "removeUser",
           userName: this.userName,
           userId: this.userId,
+          isTyping: this.isTyping,
         };
         ws.send(JSON.stringify(dataInfo));
       })
@@ -85,6 +93,10 @@ export default Vue.extend({
         isStateMessage: true,
         content: `# ${data.userName}已離開聊天室`,
       });
+    },
+    updateTypingUsersState(data: any) {
+      const typingUsersArr = data.typingUsersArr.filter((item: any) => item.isTyping);
+      this.typingUsersArr = typingUsersArr;
     },
     getMessage(data: any) {
       this.chatRecordArr.push({
@@ -101,6 +113,17 @@ export default Vue.extend({
         userName: this.userName,
         userId: this.userId,
         content: message,
+      };
+
+      this.wsSend(dataInfo);
+    },
+    sendTypingState(isTyping: boolean) {
+      this.isTyping = isTyping;
+      const dataInfo = {
+        toggleEvent: "updateTypingUsersState",
+        userName: this.userName,
+        userId: this.userId,
+        isTyping: this.isTyping,
       };
 
       this.wsSend(dataInfo);

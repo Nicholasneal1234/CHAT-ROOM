@@ -39,6 +39,19 @@
           </client-only>
         </button>
       </div>
+      <ul
+        v-show="typingUsersArr.length"
+        class="chatRoom__typing"
+      >
+        <li
+          v-for="(user, idx) in typingUsersArr"
+          :key="idx"
+          class="chatRoom__typingItem"
+        >
+          {{ user.userName }}{{ idx === typingUsersArr.length - 1 ? '' : ',' }}&nbsp;
+        </li>
+        {{ typingUsersArr.length > 1 ? 'are' : 'is' }} typing...
+      </ul>
     </div>
   </div>
 </template>
@@ -56,11 +69,20 @@ export default Vue.extend({
       type: Array,
       default: () => [],
     },
+    typingUsersArr: {
+      type: Array,
+      default: () => [],
+    },
   },
   data: (): pageData => ({
     message: '',
     elObserver: null,
   }),
+  computed: {
+    isTyping(): Boolean {
+      return this.message.length > 0 ? true : false;
+    },
+  },
   watch: {
     chatRecordArr: {
       handler() {
@@ -69,10 +91,14 @@ export default Vue.extend({
         });
       },
     },
+    isTyping: {
+      handler(val) {
+        this.$emit('isTyping', val);
+      },
+    },
   },
   methods: {
-    sendMessage(e:Event) {
-      const elTarget = e.target;
+    sendMessage() {
       if (this.message) {
         this.$emit('sendMessage', this.message);
         this.message = '';
@@ -119,8 +145,8 @@ export default Vue.extend({
   display: flex;
   flex-direction: column;
   width: 600px;
-  height: 60vh;
-  padding: 24px;
+  height: 70vh;
+  padding: 24px 24px 0;
   border-radius: 8px;
   border: 1px solid rgba($color: gray, $alpha: .5);
   background-color: #fff;
@@ -147,8 +173,9 @@ export default Vue.extend({
 
     &--input {
       display: flex;
+      position: relative;
       margin-top: 24px;
-      padding-top: 24px;
+      padding: 24px 0;
       flex-grow: 1;
       border-top: 1px solid rgba($color: gray, $alpha: .5);
 
@@ -181,6 +208,21 @@ export default Vue.extend({
           &:hover {
             cursor: pointer;
           }
+        }
+      }
+      .chatRoom__typing {
+        display: flex;
+        justify-content: flex-start;
+        position: absolute;
+        bottom: 0;
+        left: 16px;
+        padding: 0;
+        margin: 0;
+        line-height: 2;
+        font-size: 12px;
+
+        &Item {
+          list-style: none;
         }
       }
     }

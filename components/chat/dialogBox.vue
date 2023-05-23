@@ -24,7 +24,7 @@ import Vue from 'vue'
 
 export default Vue.extend({
   props: {
-     content: {
+    content: {
       type: String,
       default: "",
     },
