@@ -37,6 +37,8 @@
           />
         </li>
       </ul>
+    </div>
+    <div class="chatRoom__item chatRoom__item--select">
       <!-- 顯示上線者區塊 -->
       <ul
         v-show="isOnlineUsersShow"
@@ -211,8 +213,8 @@ export default Vue.extend({
 
   &__item {
     &--tool {
-      height: 5%;
     }
+
     &--content {
       position: relative;
       height: 85%;
@@ -232,16 +234,15 @@ export default Vue.extend({
           margin-top: 16px;
         }
       }
+    }
 
+    &--select {
       .chatRoom__select {
-        position: fixed;
         display: flex;
-        bottom: 10%;
         max-width: 600px;
         width: 100%;
         margin: 0;
         padding-left: 0;
-        transform: translateY(-100%);
         overflow-x: auto;
         .chatRoom__option {
           display: flex;
@@ -264,7 +265,6 @@ export default Vue.extend({
     &--input {
       display: flex;
       position: relative;
-      height: 10%;
       padding: 24px 0;
       flex-grow: 1;
       border-top: 1px solid rgba($color: gray, $alpha: .5);
