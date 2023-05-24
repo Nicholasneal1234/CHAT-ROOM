@@ -22,12 +22,14 @@ export default Vue.extend({
 <style lang="scss">
 .stateBox {
   display: inline-block;
+  max-width: 100%;
   text-align: center;
   padding: 0 8px;
   box-sizing: border-box;
   border-radius: 8px;
   background-color: rgba($color: gray, $alpha: .5);
-  &__item{}
+  &__item{
+  }
   &__text {
     margin: 8px 0;
   }

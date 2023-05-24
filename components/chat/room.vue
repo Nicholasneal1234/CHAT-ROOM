@@ -1,6 +1,24 @@
 <template>
   <div class="chatRoom">
+    <div class="chatRoom__item chatRoom__item--tool">
+      <!-- 操控是否顯示上線者區塊按鈕 -->
+      <button
+        @click="isOnlineUsersShow = !isOnlineUsersShow"
+      >
+        <client-only>
+            <font-awesome-icon
+              :icon="[
+                'fas',
+                isOnlineUsersShow ? 'display' : 'display'
+              ]"
+              class="icon alt"
+              :title="isOnlineUsersShow ? 'hidden onlinne users list' : 'show onlinne users list'"
+            />
+          </client-only>
+      </button>
+    </div>
     <div class="chatRoom__item chatRoom__item--content">
+      <!-- 對話紀錄區塊 -->
       <ul class="chatRoom__contentCntr">
         <li
           v-for="info in chatRecordArr"
@@ -19,8 +37,33 @@
           />
         </li>
       </ul>
+      <!-- 顯示上線者區塊 -->
+      <ul
+        v-show="isOnlineUsersShow"
+        class="chatRoom__select"
+      >
+        <li
+          v-for="(user, idx) in onlineUsersArr"
+          :key="idx"
+          :value="user.userId"
+          :class="`chatRoom__option`"
+        >
+          {{ user.userName }}
+          <client-only>
+            <font-awesome-icon
+              :icon="[
+                'fas',
+                user.userState === 'online' ? 'face-smile' : 'face-Meh'
+              ]"
+              class="icon alt"
+              :title="user.userState"
+            />
+          </client-only>
+        </li>
+      </ul>
     </div>
     <div class="chatRoom__item chatRoom__item--input">
+      <!-- 輸入區塊 -->
       <div class="chatRoom__inputCntr">
         <input
           v-model="message"
@@ -39,6 +82,7 @@
           </client-only>
         </button>
       </div>
+      <!-- 顯示誰正在輸入文字區塊 -->
       <ul
         v-show="typingUsersArr.length"
         class="chatRoom__typing"
@@ -61,6 +105,8 @@ import Vue from 'vue';
 interface pageData {
   message: string,
   elObserver: Element | null,
+  isOnlineUsersShow: Boolean,
+  onlineUsersArr: Array<Object>,
 }
 
 export default Vue.extend({
@@ -73,10 +119,16 @@ export default Vue.extend({
       type: Array,
       default: () => [],
     },
+    onlineUsers: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   data: (): pageData => ({
     message: '',
     elObserver: null,
+    isOnlineUsersShow: false,
+    onlineUsersArr: [],
   }),
   computed: {
     isTyping(): Boolean {
@@ -94,6 +146,11 @@ export default Vue.extend({
     isTyping: {
       handler(val) {
         this.$emit('isTyping', val);
+      },
+    },
+    onlineUsers: {
+      handler() {
+        this.onlineUsersArr = Object.values(this.onlineUsers);
       },
     },
   },
@@ -143,6 +200,7 @@ export default Vue.extend({
 <style lang="scss">
 .chatRoom {
   display: flex;
+  position: relative;
   flex-direction: column;
   width: 600px;
   height: 70vh;
@@ -152,8 +210,13 @@ export default Vue.extend({
   background-color: #fff;
 
   &__item {
+    &--tool {
+      height: 5%;
+    }
     &--content {
-      height: 80%;
+      position: relative;
+      height: 85%;
+      overflow-x: hidden;
       overflow-y: auto;
   
       .chatRoom__contentCntr {
@@ -169,12 +232,39 @@ export default Vue.extend({
           margin-top: 16px;
         }
       }
+
+      .chatRoom__select {
+        position: fixed;
+        display: flex;
+        bottom: 10%;
+        max-width: 600px;
+        width: 100%;
+        margin: 0;
+        padding-left: 0;
+        transform: translateY(-100%);
+        overflow-x: auto;
+        .chatRoom__option {
+          display: flex;
+          padding: 8px;
+          list-style: none;
+          background-color: rgba($color: gray, $alpha: .5);
+          border: 1px solid rgba($color: gray, $alpha: .5);
+          border-radius: 4px;
+
+          + .chatRoom__option {
+            margin-left: 8px;
+          }
+          .icon {
+            margin-left: 8px;
+          }
+        }
+      }
     }
 
     &--input {
       display: flex;
       position: relative;
-      margin-top: 24px;
+      height: 10%;
       padding: 24px 0;
       flex-grow: 1;
       border-top: 1px solid rgba($color: gray, $alpha: .5);

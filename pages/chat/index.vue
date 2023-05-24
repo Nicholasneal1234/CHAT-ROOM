@@ -4,6 +4,7 @@
       <ChatRoom
         :chat-record-arr="chatRecordArr"
         :typing-users-arr="typingUsersArr"
+        :online-users="onlineUsers"
         @isTyping="sendTypingState"
         @sendMessage="sendMessage"
       />
@@ -18,6 +19,7 @@ interface pageData {
   chatRecordArr: Array<Object>,
   isTyping: Boolean,
   typingUsersArr: Array<Object>,
+  onlineUsers: Object,
 }
 
 export default Vue.extend({
@@ -53,6 +55,7 @@ export default Vue.extend({
     chatRecordArr: [],
     isTyping: false,
     typingUsersArr: [],
+    onlineUsers: {},
   }),
   mounted() {
     this.initWs();
@@ -75,6 +78,7 @@ export default Vue.extend({
             removeUser: () => this.removeUser,
             getMessage: () => this.getMessage,
             updateTypingUsersState: () => this.updateTypingUsersState,
+            updateOnlineUsers: () => this.updateOnlineUsers,
           };
   
           const toggleEventOption = toggleEventOptions[serverData.toggleEvent];
@@ -93,6 +97,7 @@ export default Vue.extend({
           toggleEvent: "addUser",
           userName: this.userName,
           userId: this.userId,
+          userState: "online",
         };
         ws.send(JSON.stringify(dataInfo));
         this.ListenMessageFromWsServer();
@@ -101,7 +106,7 @@ export default Vue.extend({
           toggleEvent: "removeUser",
           userName: this.userName,
           userId: this.userId,
-          isTyping: this.isTyping,
+          isTyping: false,
         };
         ws.send(JSON.stringify(dataInfo));
       })
@@ -117,6 +122,10 @@ export default Vue.extend({
     updateTypingUsersState(data: any) {
       const typingUsersArr = data.typingUsersArr.filter((item: any) => item.isTyping);
       this.typingUsersArr = typingUsersArr;
+    },
+    updateOnlineUsers(data: any) {
+      const { onlineUsersObj } = data;
+      this.onlineUsers = onlineUsersObj;
     },
     getMessage(data: any) {
       this.chatRecordArr.push({
